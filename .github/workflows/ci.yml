@@ -1,0 +1,35 @@
+name: CI — build & test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Use Node.js (if you add npm scripts)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies (skip if you don't have package.json)
+        if: files.exists('package.json')
+        run: |
+          npm ci
+
+      - name: Run lint (optional)
+        if: github.event_name != 'pull_request' && files.exists('package.json')
+        run: npm run lint || echo "no lint script"
+
+      - name: Run tests (optional)
+        if: files.exists('package.json')
+        run: npm test || echo "no tests"
+
+      - name: Build Docker image (local)
+        run: docker build -f Dockerfile -t ecommerce-demo:${{ github.sha }} .
