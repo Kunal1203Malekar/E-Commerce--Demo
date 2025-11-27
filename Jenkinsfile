@@ -20,11 +20,13 @@ spec:
     volumeMounts:
     - name: workspace-volume
       mountPath: /home/jenkins/agent
+
   - name: jnlp
     image: jenkins/inbound-agent:latest
     volumeMounts:
     - name: workspace-volume
       mountPath: /home/jenkins/agent
+
   volumes:
   - name: workspace-volume
     emptyDir: {}
@@ -34,19 +36,22 @@ spec:
 
   environment {
     IMAGE_NAME = "kunalmalekar/ecommerce-demo"
-    TAG = "4"
+    TAG = "latest"          // you can change version
   }
 
   stages {
+
     stage('Checkout') {
-      steps { checkout scm }
+      steps {
+        checkout scm
+      }
     }
 
     stage('Build Docker Image') {
       steps {
-        // run inside the container that has docker client & daemon
         container('dind') {
           sh '''
+            echo "🔨 Building Docker Image..."
             docker version
             docker build -t ${IMAGE_NAME}:${TAG} .
           '''
@@ -57,20 +62,39 @@ spec:
     stage('Push to Docker Hub') {
       steps {
         container('dind') {
-          withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PSW')]) {
+          withCredentials([usernamePassword(
+              credentialsId: 'dockerhub-kunal',
+              usernameVariable: 'DOCKER_USER',
+              passwordVariable: 'DOCKER_PSW'
+          )]) {
             sh '''
+              echo "📦 Logging into Docker Hub..."
               echo $DOCKER_PSW | docker login -u $DOCKER_USER --password-stdin
+
+              echo "⬆️ Pushing Image to Docker Hub..."
               docker push ${IMAGE_NAME}:${TAG}
+
+              echo "🎉 Docker Push Completed!"
             '''
           }
         }
       }
     }
 
-    // other stages...
+    stage('Deploy') {
+      steps {
+        echo "🚀 Add deployment script here later…"
+      }
+    }
+
   }
 
   post {
-    failure { echo "❌ Pipeline Failed" }
+    failure {
+      echo "❌ Pipeline Failed"
+    }
+    success {
+      echo "✅ Pipeline Success"
+    }
   }
 }
