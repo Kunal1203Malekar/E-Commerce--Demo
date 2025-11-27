@@ -1,61 +1,76 @@
 pipeline {
-    agent any
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: dind
+    image: docker:24-dind
+    securityContext:
+      privileged: true
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "4Gi"
+        cpu: "1"
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
+  volumes:
+  - name: workspace-volume
+    emptyDir: {}
+"""
+    }
+  }
 
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        DOCKER_IMAGE = "kunalmalekar/ecommerce-demo"
+  environment {
+    IMAGE_NAME = "kunalmalekar/ecommerce-demo"
+    TAG = "4"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
     }
 
-    stages {
-        
-        stage('Clone Repository') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Kunal1203Malekar/E-Commerce--Demo.git'
-            }
+    stage('Build Docker Image') {
+      steps {
+        // run inside the container that has docker client & daemon
+        container('dind') {
+          sh '''
+            docker version
+            docker build -t ${IMAGE_NAME}:${TAG} .
+          '''
         }
-
-        stage('Build Docker Image') {
-            steps {
-                sh '''
-                docker build -t $DOCKER_IMAGE:$BUILD_NUMBER .
-                docker tag $DOCKER_IMAGE:$BUILD_NUMBER $DOCKER_IMAGE:latest
-                '''
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                sh '''
-                echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-                docker push $DOCKER_IMAGE:$BUILD_NUMBER
-                docker push $DOCKER_IMAGE:latest
-                '''
-            }
-        }
-
-        stage('Deploy to Server') {
-            when {
-                expression { return env.SERVER_IP != null }
-            }
-            steps {
-                sh '''
-                ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "
-                    docker pull $DOCKER_IMAGE:latest &&
-                    docker stop ecommerce || true &&
-                    docker rm ecommerce || true &&
-                    docker run -d -p 80:80 --name ecommerce $DOCKER_IMAGE:latest
-                "
-                '''
-            }
-        }
+      }
     }
 
-    post {
-        success {
-            echo "🚀 Jenkins Pipeline Completed Successfully"
+    stage('Push to Docker Hub') {
+      steps {
+        container('dind') {
+          withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PSW')]) {
+            sh '''
+              echo $DOCKER_PSW | docker login -u $DOCKER_USER --password-stdin
+              docker push ${IMAGE_NAME}:${TAG}
+            '''
+          }
         }
-        failure {
-            echo "❌ Pipeline Failed"
-        }
+      }
     }
+
+    // other stages...
+  }
+
+  post {
+    failure { echo "❌ Pipeline Failed" }
+  }
 }
