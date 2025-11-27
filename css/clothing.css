@@ -1,0 +1,72 @@
+/* Minimal styles for demo */
+* { box-sizing: border-box; font-family: "Segoe UI", Roboto, Arial, sans-serif; }
+body { margin: 0; background: #fafafa; color: #111; }
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 36px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+.logo { margin: 0; font-size: 28px; letter-spacing: 1px; }
+.nav-links { display:flex; gap:18px; }
+.nav-links a { text-decoration: none; color: #333; font-weight:600; }
+.nav-links a.active { color: #000; }
+.search-box { flex:1; display:flex; justify-content:center; }
+.search-box input { width:60%; padding:10px 14px; border-radius:6px; border:1px solid #e0e0e0; }
+.cart-icon { text-decoration:none; position:relative; }
+#badge {
+  display:inline-block;
+  background:#ff3b30;
+  color:#fff;
+  width:26px;height:26px;border-radius:50%;
+  text-align:center;line-height:26px;font-weight:700;
+  font-size:13px;
+}
+
+/* Banner */
+.banner { position:relative; margin:22px 36px; border-radius:8px; overflow:hidden; height:360px; }
+.banner img { width:100%; height:100%; object-fit:cover; display:block; }
+.banner-text {
+  position:absolute; left:60px; top:80px; color:#fff;
+  text-shadow: 0 2px 18px rgba(0,0,0,0.35);
+}
+.banner-text h2 { font-size:42px; margin:0 0 8px; }
+.banner-text p { font-size:18px; margin:0; }
+
+/* Products */
+.products-section { padding:36px; max-width:1280px; margin:0 auto; }
+.products-section h2 { font-size:28px; margin-bottom:22px; }
+
+/* Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+.product-card { background:#fff; border-radius:12px; overflow:hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.06); transition: transform .18s ease; }
+.product-card:hover { transform: translateY(-6px); }
+.card-link { color:inherit; text-decoration:none; display:block; }
+.thumb { height:240px; overflow:hidden; background:#f3f3f3; display:flex; align-items:center; justify-content:center; }
+.thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.info { padding:12px 14px; }
+.pname { font-size:16px; margin:6px 0 4px; }
+.pbrand { margin:0; color:#777; font-size:13px; }
+.price { margin:8px 0 0; font-weight:700; }
+
+/* empty state */
+.empty { padding:40px; color:#777; }
+
+/* Responsive */
+@media (max-width:1000px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+  .search-box input { width:80%; }
+}
+@media (max-width:600px) {
+  .product-grid { grid-template-columns: 1fr; }
+  .banner { height:220px; }
+  .banner-text { left:18px; top:36px; }
+}
