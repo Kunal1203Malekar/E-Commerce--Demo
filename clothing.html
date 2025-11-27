@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Clothing - Shoplane (Demo)</title>
+  <link rel="stylesheet" href="CSS/clothing.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <h1 class="logo">SHOPLANE</h1>
+
+    <nav class="nav-links">
+      <a href="#" class="active">CLOTHING</a>
+      <a href="#">ACCESSORIES</a>
+    </nav>
+
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="Search for Clothing and Accessories" />
+    </div>
+
+    <a href="#" class="cart-icon" title="Cart">
+      <span id="badge">0</span>
+    </a>
+  </header>
+
+  <!-- Banner -->
+  <div class="banner">
+    <img src="https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=3f6f6f3d12c8c2b1f8e9f9a4f4896d03" alt="Banner">
+    <div class="banner-text">
+      <h2>FOR THE WONDER WOMEN</h2>
+      <p>New Classic Collections</p>
+    </div>
+  </div>
+
+  <!-- Products -->
+  <section class="products-section">
+    <h2>Clothing For Men And Women</h2>
+
+    <!-- Container where JS will append product cards -->
+    <div id="clothingContainer" class="product-grid"></div>
+  </section>
+
+  <script src="clothing.js"></script>
+</body>
+</html>
